@@ -188,7 +188,7 @@ class FuzzyKrippendorff:
 # -------------------------------
 # Example Usage
 # -------------------------------
-
+"""
 if __name__ == "__main__":
     # Define file paths for the three annotators.
     paths = {
@@ -207,3 +207,4 @@ if __name__ == "__main__":
     # Compute and display Krippendorff's alpha.
     alpha = fk.compute_krippendorff_alpha()
     print("Krippendorff's alpha (with fuzzy matching):", alpha)
+"""
