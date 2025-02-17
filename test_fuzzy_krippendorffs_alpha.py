@@ -1,3 +1,4 @@
+# %%
 import json
 import spacy
 import itertools
@@ -224,3 +225,4 @@ if __name__ == "__main__":
     print("Krippendorff's alpha (with fuzzy matching):", alpha)
 
 
+# %%
