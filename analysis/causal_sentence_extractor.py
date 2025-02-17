@@ -388,19 +388,3 @@ def get_causal_sentences(pdf_dir, batch_size=16):
     print("================================")
     
     return causal_sentences, causal_pdf_files
-
-# lets test the function with a sample directory of PDF files
-
-# Sample PDF directory
-pdf_directory = "data"
-causal_sentences, causal_pdf_files = get_causal_sentences(pdf_directory, batch_size=16)
-
-# Export the results to a CSV file
-results_df = pd.DataFrame({
-    'pdf_file': causal_pdf_files,
-    'causal_sentence': causal_sentences
-})
-
-output_csv = "causal_sentences.csv"
-results_df.to_csv(output_csv, index=False)
-print(f"\nResults saved to: {output_csv}")
