@@ -51,7 +51,13 @@ class AnnotationProcessor:
                             if labels[i] == "NONE":
                                 labels[i] = label
                             else:
-                                labels[i] += f"+{label}"
+                                # Split the current composite label into individual parts.
+                                current_labels = labels[i].split("+")
+                                # Add the new label if it's not already present.
+                                if label not in current_labels:
+                                    current_labels.append(label)
+                                # Sort the labels to enforce a canonical order.
+                                labels[i] = "+".join(sorted(current_labels))
                 processed.append({"tokens": tokens, "labels": labels})
         return processed
 
@@ -68,7 +74,6 @@ class AnnotationProcessor:
 def extract_spans(tokens, labels, target_label):
     """
     Extract tokens that contain the target label.
-    Converts tokens to lowercase for consistency.
     """
     spans = []
     current_span = []
@@ -101,7 +106,6 @@ def fuzzy_match_score(span1, span2):
     overlap = set1 & set2
 
     return len(overlap) / min(len(set1), len(set2)) if min(len(set1), len(set2)) > 0 else 0.0
-
 
 def fuzzy_distance(span1, span2):
     """
@@ -184,6 +188,8 @@ class FuzzyKrippendorff:
             alphas.append(alpha)
 
         return sum(alphas) / len(alphas)
+
+
 
 # -------------------------------
 # Example Usage
