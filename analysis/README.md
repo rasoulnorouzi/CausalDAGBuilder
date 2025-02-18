@@ -1,3 +1,11 @@
+<!-- Include KaTeX CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" integrity="sha384-1kzZkqoi9pTprgHlsWCVzE8tZJ/pPZ6UXuO+P8AbG4V/AS5Ezf+5NI+cyQpc+R5C" crossorigin="anonymous">
+
+<!-- Include KaTeX auto-render extension -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.js" integrity="sha384-VZ/FeEEluE8Qx4t5Dr7XWVKqFZfTEfIG8PpHbKGxUOBb6v+nBNKov6M8b8PZH7Hg" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQpIB8XxZQO/Gsl5z0Pdv6j5pLQj5o+Vj6kIULg6lMjnG5Zgxv9gjtHtm7B" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+
 ### 1. **Fuzzy Matching for Annotation Spans**
 
 When comparing annotations, we often need to decide whether two spans of text “match” even if they are not exactly identical. The approach here is to use **fuzzy matching**. Given two spans of tokens (which may be lists of tokens), we first **flatten** the spans into sets of tokens and then measure their overlap.
@@ -27,8 +35,6 @@ d(S_1, S_2) = 1 - \text{FuzzyMatchScore}(S_1, S_2)
 
 A perfect match gives a distance of 0, and no overlap gives a distance of 1.
 
----
-
 ### 2. **Observed and Expected Disagreement**
 
 #### **Observed Disagreement (\(D_o\))**
@@ -36,10 +42,10 @@ A perfect match gives a distance of 0, and no overlap gives a distance of 1.
 For a given target label (e.g., "cause" or "effect"), suppose we have \( n \) annotators. For each sentence, we extract the corresponding spans from each annotator. For every unique pair of annotators \((i, j)\), we compute the fuzzy distance between their spans:
   
 \[
-d_{ij}(s) = d\big(S_i(s), S_j(s)\big)
+d_{ij}(s) = d\big(S_{i}(s), S_{j}(s)\big)
 \]
 
-where \( S_i(s) \) is the span extracted by annotator \( i \) in sentence \( s \).
+where \( S_{i}(s) \) is the span extracted by annotator \( i \) in sentence \( s \).
 
 For each sentence \( s \), the average pairwise distance is:
 
@@ -55,15 +61,13 @@ D_o = \frac{1}{N} \sum_{s=1}^{N} D_o(s)
 
 #### **Expected Disagreement (\(D_e\))**
 
-Instead of comparing annotations sentence by sentence, \( D_e \) is computed by pooling all spans for the target label across sentences and annotators. Denote the pooled set of spans by \(\{S_1, S_2, \ldots, S_M\}\) (where \( M \) is the total number of spans).
+Instead of comparing annotations sentence by sentence, \( D_e \) is computed by pooling all spans for the target label across sentences and annotators. Denote the pooled set of spans by \( \{S_1, S_2, \ldots, S_M\} \) (where \( M \) is the total number of spans).
 
 The average pairwise fuzzy distance over all pairs is:
 
 \[
 D_e = \frac{2}{M(M-1)} \sum_{i<j} d(S_i, S_j)
 \]
-
----
 
 ### 3. **Krippendorff’s Alpha**
 
