@@ -39,7 +39,7 @@ $$
 
 where $S_i(s)$ is the span extracted by annotator $i$ in sentence $s$.
 
-For each sentence $s$, the average pairwise distance is:
+For each sentence $$s$$, the average pairwise distance is:
 
 $$
 D_o(s) = \frac{2}{n(n-1)} \sum_{i<j} d_{ij}(s)
