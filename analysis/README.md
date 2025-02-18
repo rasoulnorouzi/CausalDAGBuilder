@@ -11,9 +11,10 @@ Let:
 
 Then the **fuzzy match score** is defined as:
 
+For each sentence s, the average pairwise distance is:
+
 $$
-\text{FuzzyMatchScore}(S_1, S_2) 
-= \frac{|S_1 \cap S_2|}{\min\bigl(|S_1|, |S_2|\bigr)}
+D_o(s) = \frac{2}{n(n-1)} \sum_{i<j} d_{ij}(s)
 $$
 
 This score lies in the interval $[0,1]$, where 1 indicates a perfect match and 0 indicates no overlap.
