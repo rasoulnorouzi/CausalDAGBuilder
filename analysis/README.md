@@ -1,7 +1,10 @@
-<!-- Include MathJax for rendering LaTeX -->
-<script type="text/javascript"
-  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
-</script>
+<!-- Include KaTeX CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" integrity="sha384-1kzZkqoi9pTprgHlsWCVzE8tZJ/pPZ6UXuO+P8AbG4V/AS5Ezf+5NI+cyQpc+R5C" crossorigin="anonymous">
+
+<!-- Include KaTeX auto-render extension -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.js" integrity="sha384-VZ/FeEEluE8Qx4t5Dr7XWVKqFZfTEfIG8PpHbKGxUOBb6v+nBNKov6M8b8PZH7Hg" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQpIB8XxZQO/Gsl5z0Pdv6j5pLQj5o+Vj6kIULg6lMjnG5Zgxv9gjtHtm7B" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
 
 ### 1. **Fuzzy Matching for Annotation Spans**
 
