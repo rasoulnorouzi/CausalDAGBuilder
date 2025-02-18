@@ -1,3 +1,8 @@
+<!-- Include MathJax for rendering LaTeX -->
+<script type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
 ### 1. **Fuzzy Matching for Annotation Spans**
 
 When comparing annotations, we often need to decide whether two spans of text “match” even if they are not exactly identical. The approach here is to use **fuzzy matching**. Given two spans of tokens (which may be lists of tokens), we first **flatten** the spans into sets of tokens and then measure their overlap.
