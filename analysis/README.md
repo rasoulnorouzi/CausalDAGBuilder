@@ -1,66 +1,90 @@
-### 1. **Fuzzy Matching for Annotation Spans**
-When comparing annotations, we often need to decide whether two spans of text "match" even if they are not exactly identical. The approach here is to use **fuzzy matching**. Given two spans of tokens (which may be lists of tokens), we first **flatten** the spans into sets of tokens and then measure their overlap.
+# Mathematical Formulation of Fuzzy Krippendorff's Alpha
 
-#### **Fuzzy Match Score**
-Let:
-- S₁ and S₂ be the flattened sets of tokens extracted from the annotation spans.
-- |S₁| and |S₂| be the number of unique tokens in each span.
-- S₁ ∩ S₂ be the set of tokens common to both.
+## 1. Core Formula
 
-Then the **fuzzy match score** is defined as:
+The Fuzzy Krippendorff's Alpha (α) is defined as:
 
-```
-FuzzyMatchScore(S₁, S₂) = |S₁ ∩ S₂| / min{|S₁|, |S₂|}
-```
+α = 1 - (D_o / D_e)
 
-This score lies in the interval [0,1], where 1 indicates a perfect match and 0 indicates no overlap.
+Where:
+- D_o is the observed disagreement
+- D_e is the expected disagreement
 
-#### **Fuzzy Distance**
-We then define a **distance metric** based on the fuzzy match score:
+## 2. Fuzzy Set Operations
 
-```
-d(S₁, S₂) = 1 - FuzzyMatchScore(S₁, S₂)
-```
+### 2.1 Fuzzy Match Score
 
-A perfect match gives a distance of 0, and no overlap gives a distance of 1.
+For two annotation spans S₁ and S₂, the fuzzy match score is defined as:
 
-### 2. **Observed and Expected Disagreement**
+F(S₁, S₂) = |S₁ ∩ S₂| / min(|S₁|, |S₂|)
 
-#### **Observed Disagreement (Dₒ)**
-For a given target label (e.g., "cause" or "effect"), suppose we have n annotators. For each sentence, we extract the corresponding spans from each annotator. For every unique pair of annotators (i, j), we compute the fuzzy distance between their spans:
+Special cases:
+- F(∅, ∅) = 1 (empty sets are considered perfect matches)
+- F(S₁, ∅) = F(∅, S₂) = 0 (empty set and non-empty set have no match)
 
-```
-dᵢⱼ(s) = d(Sᵢ(s), Sⱼ(s))
-```
+### 2.2 Fuzzy Distance Metric
 
-where Sᵢ(s) is the span extracted by annotator i in sentence s.
+The fuzzy distance d between two spans is defined as:
 
-For each sentence s, the average pairwise distance is:
+d(S₁, S₂) = 1 - F(S₁, S₂)
 
-```
-Dₒ(s) = (2 / (n(n-1))) ∑ᵢ<ⱼ dᵢⱼ(s)
-```
+Properties:
+- d(S₁, S₂) ∈ [0,1]
+- d(S₁, S₁) = 0 (identity)
+- d(S₁, S₂) = d(S₂, S₁) (symmetry)
 
-Then, averaging over all N sentences:
+## 3. Observed Disagreement (D_o)
 
-```
-Dₒ = (1/N) ∑ₛ₌₁ᴺ Dₒ(s)
-```
+For a corpus with N sentences and M annotators:
 
-#### **Expected Disagreement (Dₑ)**
-Instead of comparing annotations sentence by sentence, Dₑ is computed by pooling all spans for the target label across sentences and annotators. Denote the pooled set of spans by {S₁, S₂, ..., Sₘ} (where M is the total number of spans).
+D_o = (1/N) ∑ᵢ₌₁ᴺ δᵢ
 
-The average pairwise fuzzy distance over all pairs is:
+Where δᵢ for each sentence i is:
 
-```
-Dₑ = (2 / (M(M-1))) ∑ᵢ<ⱼ d(Sᵢ, Sⱼ)
-```
+δᵢ = (2/M(M-1)) ∑ₖ₌₁ᴹ⁻¹ ∑ₗ₌ₖ₊₁ᴹ d(Sᵢₖ, Sᵢₗ)
 
-### 3. **Krippendorff's Alpha**
-Krippendorff's alpha is then defined by comparing the observed disagreement Dₒ with the expected disagreement Dₑ:
+Where:
+- Sᵢₖ is the span annotation from annotator k for sentence i
+- d(Sᵢₖ, Sᵢₗ) is the fuzzy distance between two annotations
 
-```
-α = 1 - (Dₒ/Dₑ)    if Dₑ > 0
-```
+## 4. Expected Disagreement (D_e)
 
-If Dₑ = 0 (i.e., if there is no expected disagreement because annotations are completely uniform), we set α = 1.0 by definition. Note that if the computed α falls below 0, it is often truncated to 0.
+Let Π be the set of all spans across all sentences and annotators:
+
+Π = {Sᵢₖ | i ∈ [1,N], k ∈ [1,M]}
+
+Then:
+
+D_e = (2/|Π|(|Π|-1)) ∑ₐ₌₁|Π|⁻¹ ∑ᵦ₌ₐ₊₁|Π| d(Sₐ, Sᵦ)
+
+Where:
+- |Π| is the total number of spans in the pooled set
+- Sₐ, Sᵦ are any two spans from the pooled set
+
+## 5. Multi-Label Extension
+
+For a set of L target labels (e.g., "cause", "effect"), the final alpha is:
+
+α = (1/L) ∑ᵢ₌₁ᴸ αᵢ
+
+Where αᵢ is the alpha value computed for each label i:
+
+αᵢ = max(0, 1 - D_oᵢ/D_eᵢ)
+
+The max function ensures non-negative alpha values.
+
+## 6. Properties
+
+1. Range: α ∈ [0,1]
+2. Perfect Agreement: α = 1 when D_o = 0
+3. Chance Agreement: α = 0 when D_o = D_e
+4. For each label i: αᵢ ≥ 0
+
+## 7. Interpretation Guidelines
+
+- α > 0.8: Strong agreement
+- 0.67 < α ≤ 0.8: Substantial agreement
+- 0.4 < α ≤ 0.67: Moderate agreement
+- α ≤ 0.4: Poor agreement
+
+These thresholds may vary based on the specific annotation task and requirements.
