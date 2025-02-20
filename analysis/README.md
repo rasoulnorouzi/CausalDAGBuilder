@@ -1,37 +1,62 @@
 # Fuzzy Krippendorff's Alpha
 
-Let α be the Fuzzy Krippendorff's Alpha coefficient defined as:
+## Mathematical Formulation
 
-α = 1 - (D_o / D_e)                                                               (1)
+### Core Formula
+Let α be the Fuzzy Krippendorff's Alpha coefficient:
+
+```math
+α = 1 - \frac{D_o}{D_e}  \tag{1}
+```
 
 where D_o is observed disagreement and D_e is expected disagreement.
 
-For annotation spans S₁ and S₂, the fuzzy match score F is:
+### Fuzzy Match Score
+For annotation spans S₁ and S₂:
 
-F(S₁, S₂) = |S₁ ∩ S₂| / min(|S₁|, |S₂|)                                         (2)
+```math
+F(S_1, S_2) = \frac{|S_1 \cap S_2|}{\min(|S_1|, |S_2|)}  \tag{2}
+```
 
-The fuzzy distance d between spans:
+### Fuzzy Distance
+Distance between spans:
 
-d(S₁, S₂) = 1 - F(S₁, S₂)                                                       (3)
+```math
+d(S_1, S_2) = 1 - F(S_1, S_2)  \tag{3}
+```
 
-For N sentences and M annotators, observed disagreement D_o:
+### Observed Disagreement
+For N sentences and M annotators:
 
-D_o = (1/N) ∑ᵢ₌₁ᴺ δᵢ                                                            (4)
+```math
+D_o = \frac{1}{N} \sum_{i=1}^N δ_i  \tag{4}
+```
 
 where sentence-level disagreement δᵢ:
 
-δᵢ = (2/M(M-1)) ∑ₖ₌₁ᴹ⁻¹ ∑ₗ₌ₖ₊₁ᴹ d(Sᵢₖ, Sᵢₗ)                                    (5)
+```math
+δ_i = \frac{2}{M(M-1)} \sum_{k=1}^{M-1} \sum_{l=k+1}^M d(S_{ik}, S_{il})  \tag{5}
+```
 
-Expected disagreement D_e for pooled spans Π = {Sᵢₖ | i ∈ [1,N], k ∈ [1,M]}:
+### Expected Disagreement
+For pooled spans Π = {Sᵢₖ | i ∈ [1,N], k ∈ [1,M]}:
 
-D_e = (2/|Π|(|Π|-1)) ∑ₐ₌₁|Π|⁻¹ ∑ᵦ₌ₐ₊₁|Π| d(Sₐ, Sᵦ)                            (6)
+```math
+D_e = \frac{2}{|Π|(|Π|-1)} \sum_{a=1}^{|Π|-1} \sum_{β=a+1}^{|Π|} d(S_a, S_β)  \tag{6}
+```
 
+### Multi-Label Extension
 For L labels, final alpha:
 
-α = (1/L) ∑ᵢ₌₁ᴸ max(0, 1 - D_oᵢ/D_eᵢ)                                          (7)
-
-**Algorithm 1**: Fuzzy Krippendorff's Alpha Computation
+```math
+α = \frac{1}{L} \sum_{i=1}^L \max(0, 1 - \frac{D_{oi}}{D_{ei}})  \tag{7}
 ```
+
+## Algorithm
+
+```
+Algorithm 1: Fuzzy Krippendorff's Alpha Computation
+
 Input: A = {a₁, ..., aₘ} annotators' spans for N sentences
 Output: α (Fuzzy Krippendorff's Alpha coefficient)
 
@@ -64,3 +89,8 @@ Function Distance(S₁, S₂):
     if S₁ = ∅ or S₂ = ∅ then return 1
     return 1 - |S₁ ∩ S₂|/min(|S₁|, |S₂|)
 ```
+
+### Notes:
+- All formulas use standard set theory notation
+- Empty set comparisons are handled as special cases
+- Algorithm complexity: O(N·M² + |Π|²)
