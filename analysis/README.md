@@ -1,96 +1,90 @@
-# Fuzzy Krippendorff's Alpha
+# Mathematical Formulation of Fuzzy Krippendorff's Alpha
 
-## Mathematical Formulation
+## 1. Core Formula
 
-### Core Formula
-Let α be the Fuzzy Krippendorff's Alpha coefficient:
+The Fuzzy Krippendorff's Alpha (α) is defined as:
 
-```math
-α = 1 - \frac{D_o}{D_e}  \tag{1}
-```
+α = 1 - (D_o / D_e)
 
-where D_o is observed disagreement and D_e is expected disagreement.
+Where:
+- D_o is the observed disagreement
+- D_e is the expected disagreement
 
-### Fuzzy Match Score
-For annotation spans S₁ and S₂:
+## 2. Fuzzy Set Operations
 
-```math
-F(S_1, S_2) = \frac{|S_1 \cap S_2|}{\min(|S_1|, |S_2|)}  \tag{2}
-```
+### 2.1 Fuzzy Match Score
 
-### Fuzzy Distance
-Distance between spans:
+For two annotation spans S₁ and S₂, the fuzzy match score is defined as:
 
-```math
-d(S_1, S_2) = 1 - F(S_1, S_2)  \tag{3}
-```
+F(S₁, S₂) = |S₁ ∩ S₂| / min(|S₁|, |S₂|)
 
-### Observed Disagreement
-For N sentences and M annotators:
+Special cases:
+- F(∅, ∅) = 1 (empty sets are considered perfect matches)
+- F(S₁, ∅) = F(∅, S₂) = 0 (empty set and non-empty set have no match)
 
-```math
-D_o = \frac{1}{N} \sum_{i=1}^N δ_i  \tag{4}
-```
+### 2.2 Fuzzy Distance Metric
 
-where sentence-level disagreement δᵢ:
+The fuzzy distance d between two spans is defined as:
 
-```math
-δ_i = \frac{2}{M(M-1)} \sum_{k=1}^{M-1} \sum_{l=k+1}^M d(S_{ik}, S_{il})  \tag{5}
-```
+d(S₁, S₂) = 1 - F(S₁, S₂)
 
-### Expected Disagreement
-For pooled spans Π = {Sᵢₖ | i ∈ [1,N], k ∈ [1,M]}:
+Properties:
+- d(S₁, S₂) ∈ [0,1]
+- d(S₁, S₁) = 0 (identity)
+- d(S₁, S₂) = d(S₂, S₁) (symmetry)
 
-```math
-D_e = \frac{2}{|Π|(|Π|-1)} \sum_{a=1}^{|Π|-1} \sum_{β=a+1}^{|Π|} d(S_a, S_β)  \tag{6}
-```
+## 3. Observed Disagreement (D_o)
 
-### Multi-Label Extension
-For L labels, final alpha:
+For a corpus with N sentences and M annotators:
 
-```math
-α = \frac{1}{L} \sum_{i=1}^L \max(0, 1 - \frac{D_{oi}}{D_{ei}})  \tag{7}
-```
+D_o = (1/N) ∑ᵢ₌₁ᴺ δᵢ
 
-## Algorithm
+Where δᵢ for each sentence i is:
 
-```
-Algorithm 1: Fuzzy Krippendorff's Alpha Computation
+δᵢ = (2/M(M-1)) ∑ₖ₌₁ᴹ⁻¹ ∑ₗ₌ₖ₊₁ᴹ d(Sᵢₖ, Sᵢₗ)
 
-Input: A = {a₁, ..., aₘ} annotators' spans for N sentences
-Output: α (Fuzzy Krippendorff's Alpha coefficient)
+Where:
+- Sᵢₖ is the span annotation from annotator k for sentence i
+- d(Sᵢₖ, Sᵢₗ) is the fuzzy distance between two annotations
 
-Function ComputeFuzzyKrippendorff(A):
-    D_o ← 0
-    for i ← 1 to N do
-        δ ← 0
-        for k ← 1 to M-1 do
-            for l ← k+1 to M do
-                δ ← δ + Distance(A[k][i], A[l][i])
-            end for
-        end for
-        D_o ← D_o + (2δ)/(M(M-1))
-    end for
-    D_o ← D_o/N
-    
-    Π ← Pool(A)
-    D_e ← 0
-    for a ← 1 to |Π|-1 do
-        for b ← a+1 to |Π| do
-            D_e ← D_e + Distance(Π[a], Π[b])
-        end for
-    end for
-    D_e ← (2D_e)/(|Π|(|Π|-1))
-    
-    return 1 - D_o/D_e
+## 4. Expected Disagreement (D_e)
 
-Function Distance(S₁, S₂):
-    if S₁ = ∅ and S₂ = ∅ then return 0
-    if S₁ = ∅ or S₂ = ∅ then return 1
-    return 1 - |S₁ ∩ S₂|/min(|S₁|, |S₂|)
-```
+Let Π be the set of all spans across all sentences and annotators:
 
-### Notes:
-- All formulas use standard set theory notation
-- Empty set comparisons are handled as special cases
-- Algorithm complexity: O(N·M² + |Π|²)
+Π = {Sᵢₖ | i ∈ [1,N], k ∈ [1,M]}
+
+Then:
+
+D_e = (2/|Π|(|Π|-1)) ∑ₐ₌₁|Π|⁻¹ ∑ᵦ₌ₐ₊₁|Π| d(Sₐ, Sᵦ)
+
+Where:
+- |Π| is the total number of spans in the pooled set
+- Sₐ, Sᵦ are any two spans from the pooled set
+
+## 5. Multi-Label Extension
+
+For a set of L target labels (e.g., "cause", "effect"), the final alpha is:
+
+α = (1/L) ∑ᵢ₌₁ᴸ αᵢ
+
+Where αᵢ is the alpha value computed for each label i:
+
+αᵢ = max(0, 1 - D_oᵢ/D_eᵢ)
+
+The max function ensures non-negative alpha values.
+
+## 6. Properties
+
+1. Range: α ∈ [0,1]
+2. Perfect Agreement: α = 1 when D_o = 0
+3. Chance Agreement: α = 0 when D_o = D_e
+4. For each label i: αᵢ ≥ 0
+
+## 7. Interpretation Guidelines
+
+- α > 0.8: Strong agreement
+- 0.67 < α ≤ 0.8: Substantial agreement
+- 0.4 < α ≤ 0.67: Moderate agreement
+- α ≤ 0.4: Poor agreement
+
+These thresholds may vary based on the specific annotation task and requirements.
