@@ -14,7 +14,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification, Data
 import pandas as pd
 import time
 from datasets import Dataset
-from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data import DataLoader
 # %%
 
 
@@ -351,7 +351,7 @@ def classify_sentences(pdf_sentences_dataset, batch_size=16):
     return causal_sentences, causal_pdf_files
 
 
-# No it's time to put all the pieces together and process a directory of PDF files, extracting causal sentences from each one.The function name has causal in it!
+# All the pieces together and process a directory of PDF files, extracting causal sentences from each one.
 
 def get_causal_sentences(pdf_dir, batch_size=16):
     """
