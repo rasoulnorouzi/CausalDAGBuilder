@@ -125,13 +125,15 @@ Output:
 ```
 
 ```
-Input: consistent with our finding, leary, haupt, strausser, and chokel (1998) reported that trait self-esteem did not moderate participants' reactions to interpersonal rejection.
-Output:
-"sentence": "consistent with our finding, leary, haupt, strausser, and chokel (1998) reported that trait self-esteem did not moderate participants' reactions to interpersonal rejection."
+Input: "since altruism is a form of unconditional kindness, it cannot explain the phenomenon of conditional cooperation, ie, the fact that many people are willing to increase their voluntary cooperation in response to the cooperation of the other players."
+"sentence": "since altruism is a form of unconditional kindness, it cannot explain the phenomenon of conditional cooperation, ie, the fact that many people are willing to increase their voluntary cooperation in response to the cooperation of the other players."
 "causal": yes,
 "causes": {
-"trait self-esteem": {
-"participants' reactions to interpersonal rejection": "Zero"
+"altruism": {
+"conditional cooperation": "Zero"
+},
+"cooperation of the other players": {
+"voluntary cooperation": "Positive"
 }
 }
 ```
