@@ -1,13 +1,14 @@
+# %%
 import json
 import spacy
 import itertools
 
 class KrippendorffSpanMatcher:
-    def __init__(self, annotator_paths, language="en", matching_mode="fuzzy", targets=("cause", "effect", "cause+effect")):
+    def __init__(self, annotator_paths, language="en", matching_mode="relaxed", targets=("cause", "effect", "cause+effect")):
         """
         annotator_paths: dict mapping annotator names to file paths.
         language: spaCy language model to use.
-        matching_mode: "fuzzy" (proportional token overlap) or "overlap" (any overlap = full agreement).
+        matching_mode: "relaxed" (any overlap = full agreement).
         targets: tuple of target labels to consider.
         """
         self.annotator_paths = annotator_paths
@@ -82,9 +83,7 @@ class KrippendorffSpanMatcher:
     def match_score(self, span1, span2):
         """
         Computes the matching score between two spans.
-        - In "fuzzy" mode, the score is proportional to the token overlap:
-              len(overlap) / min(len(set(span1)), len(set(span2))).
-        - In "overlap" mode, any overlap returns 1.0 (full agreement); no overlap returns 0.0.
+        - In "relaxed" mode, any overlap returns 1.0 (full agreement); no overlap returns 0.0.
         Both span1 and span2 are expected to be lists of spans.
         """
         if not span1 and not span2:
@@ -96,13 +95,10 @@ class KrippendorffSpanMatcher:
         set1 = set(sum(span1, []))
         set2 = set(sum(span2, []))
         
-        if self.matching_mode == "overlap":
-            return 1.0 if set1 & set2 else 0.0
-        else:  # "fuzzy" mode
-            overlap = set1 & set2
-            return len(overlap) / min(len(set1), len(set2)) if min(len(set1), len(set2)) > 0 else 0.0
+        # "relaxed" mode
+        return 1.0 if set1 & set2 else 0.0
 
-    def fuzzy_distance(self, span1, span2):
+    def relaxed_distance(self, span1, span2):
         """
         Converts the match score into a distance metric.
         Perfect match gives a distance of 0; no overlap gives 1.
@@ -111,10 +107,10 @@ class KrippendorffSpanMatcher:
 
     def average_pairwise_distance(self, spans):
         """
-        Computes the average pairwise fuzzy distance for a list of spans.
+        Computes the average pairwise relaxed distance for a list of spans.
         """
         distances = [
-            self.fuzzy_distance(spans[i], spans[j])
+            self.relaxed_distance(spans[i], spans[j])
             for i, j in itertools.combinations(range(len(spans)), 2)
         ]
         return sum(distances) / len(distances) if distances else 0.0
@@ -130,7 +126,7 @@ class KrippendorffSpanMatcher:
             spans = [self.extract_spans(tokens, labels, target_label)
                      for tokens, labels in zip(tokens_list, labels_list)]
             distances = [
-                self.fuzzy_distance(spans[i], spans[j])
+                self.relaxed_distance(spans[i], spans[j])
                 for i, j in itertools.combinations(range(len(spans)), 2)
             ]
             if distances:
@@ -150,7 +146,7 @@ class KrippendorffSpanMatcher:
 
     def compute_krippendorff_alpha(self):
         """
-        Computes Krippendorff's alpha (averaged over the specified target labels) using the fuzzy matching approach.
+        Computes Krippendorff's alpha (averaged over the specified target labels) using the relaxed matching approach.
         """
         alphas = []
         for target in self.targets:
@@ -172,41 +168,3 @@ class KrippendorffSpanMatcher:
                 labels_set.update(sentence["labels"])
             unique_labels[name] = labels_set
         return unique_labels
-
-
-# -------------------------------
-# Example Usage
-# -------------------------------
-if __name__ == "__main__":
-    # Define file paths for the annotators.
-    paths = {
-        "rasoul": 'rasoul.jsonl',
-        "caspar": 'caspar.jsonl',
-        "bennett": 'bennett.jsonl'
-    }
-    
-    
-    
-    # Report the unique labels for each annotator.
-    unique_labels = matcher.get_unique_labels()
-    for name, labels in unique_labels.items():
-        print(f"{name}: {labels}")
-        # Expected outputs:
-        # rasoul: {'NONE', 'effect', 'cause', 'cause+effect'}
-        # caspar: {'NONE', 'effect', 'cause', 'cause+effect'}
-        # bennett: {'NONE', 'effect', 'cause'}
-
-    print("---")
-    # matching_mode set to "overlap"
-    overlap_matcher = KrippendorffSpanMatcher(annotator_paths=paths, matching_mode="overlap", targets=("cause", "effect"))
-    # Compute and display overlap Krippendorff's alpha.
-    overlap_alpha = overlap_matcher.compute_krippendorff_alpha()
-    print("Overlap Krippendorff's alpha:", overlap_alpha)
-
-    print("---")	
-    # matching_mode set to "fuzzy"
-    fuzzy_matcher = KrippendorffSpanMatcher(annotator_paths=paths, matching_mode="fuzzy", targets=("cause", "effect"))
-    # Compute and display fuzzy Krippendorff's alpha.
-    fuzzy_alpha = fuzzy_matcher.compute_krippendorff_alpha()
-    print("Fuzzy Krippendorff's alpha:", fuzzy_alpha)
-
