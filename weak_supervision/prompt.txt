@@ -87,6 +87,21 @@ Output:
 ```
 
 ```
+Input: thus, experiencing a task that leads to decrements in feelings of relatedness may affect people's ability to experience intrinsic motivation by also influencing people's mood.;;
+Output:
+"sentence": "thus, experiencing a task that leads to decrements in feelings of relatedness may affect people's ability to experience intrinsic motivation by also influencing people's mood.;;"
+"causal": yes,
+"causes": {
+"experiencing a task that leads to decrements in feelings of relatedness": {
+"influencing people's mood": "Neutral"
+},
+"influencing people's mood": {
+"affect people's ability to experience intrinsic motivation": "Neutral"
+}
+}
+```
+
+```
 Input: The ostracism alarm comes in the form of feeling social pain, resulting in negative affect and threats to basic needs.
 Output:
 "sentence": "The ostracism alarm comes in the form of feeling social pain, resulting in negative affect and threats to basic needs."
