@@ -1,24 +1,30 @@
 # Objective
 
-Analyze the input sentence to determine if it describes a causal relationship. If it is causal, identify all cause-effect pairs and their polarity. If not causal, state so.
+Analyze the input sentence to determine if it describes a causal relationship. If it is causal, identify all cause-effect pairs and their polarity. If not causal, state so. Include the original input sentence in the output.
 
 # IMPORTANT: Required Output Format
 
-You MUST strictly adhere to this exact output format:
+You MUST strictly adhere to this exact JSON output format. Output ONLY the JSON object.
 
 For causal sentences:
 
 ```
-"sentence": [exact input sentence]
-"causal": yes,
-"causes": {
-    [cause_1]: {
-        [effect_1]: [polarity],
-        [effect_2]: [polarity]
-    },
-    [cause_2]: {
-        [effect_1]: [polarity]
-    }
+{
+  "text": "[exact input sentence]",
+  "causal": true,
+  "relations": [
+     {
+       "cause": "[exact cause text 1]",
+       "effect": "[exact effect text 1]",
+       "polarity": "[Polarity1]"
+     },
+     {
+       "cause": "[exact cause text 2]",
+       "effect": "[exact effect text 2]",
+       "polarity": "[Polarity2]"
+     }
+     // ... potentially more relations
+  ]
 }
 
 ```
@@ -26,13 +32,31 @@ For causal sentences:
 For non-causal sentences:
 
 ```
-"sentence": [exact input sentence]
-"causal": no,
-"causes": {}
+{
+  "text": "[exact input sentence]",
+  "causal": false,
+  "relations": []
+}
 
 ```
 
-DO NOT deviate from this format. Use the exact format structure shown above.
+- The value for "text" MUST be the exact input sentence provided for analysis.
+
+- The value for "causal" MUST be boolean true or false.
+
+- The value for "relations" MUST be a list ([]).
+
+- If "causal" is false, the "relations" list MUST be empty.
+
+- If "causal" is true, the "relations" list should contain one dictionary for each distinct cause-effect pair identified.
+
+- Each dictionary in the "relations" list MUST have the keys "cause", "effect", and "polarity".
+
+- The values for "cause" and "effect" MUST be the exact text spans extracted from the sentence.
+
+- The value for "polarity" MUST be one of: "Positive", "Negative", "Neutral", "Zero".
+
+DO NOT deviate from this format. Do not add explanations, reasoning, comments, or any text outside the single JSON object.
 
 # Definitions
 
@@ -65,212 +89,308 @@ DO NOT deviate from this format. Use the exact format structure shown above.
     - An effect can sometimes become the cause of a subsequent effect (causal chain). List both pairs sequentially.
     - For each pair, extract the exact Cause phrase and the exact Effect phrase from the sentence. Do not modify, shorten, or extend the phrases. This is true for cause spans as well as effect spans.
     - Determine the Polarity (Positive, Negative, Neutral, Zero) for each pair based on the definitions above.
-    - Format the output exactly as shown in the required output format.
+    - Populate the "relations" list with a dictionary ({"cause": "...", "effect": "...", "polarity": "..."}) for each identified pair.
+    - Construct the final JSON object including the "text" key (containing the original input sentence), the "causal" key, and the "relations" list.
+    - Format the entire output as a single JSON object exactly as shown in the required output format.
+
 4. If "causal": no:
-    - Output the format for non-causal sentences as shown above.
+    - Ensure the "relations" list is empty ([]).
+    - Construct the final JSON object including the "text" key (containing the original input sentence), the "causal": false key-value pair, and the empty "relations" list.
+    - Format the entire output as a single JSON object exactly as shown in the required output format for non-causal sentences.
 
 # Examples
 
 ```
 Input: according to smith (2008), there is a need for substantial and consistent support and encouragement for women to participate in studies.
 Output:
-"sentence": "according to smith (2008), there is a need for substantial and consistent support and encouragement for women to participate in studies."
-"causal": yes,
-"causes": {
-"substantial and consistent support": {
-"women to participate in studies": "Neutral"
-},
-"encouragement": {
-"women to participate in studies": "Neutral"
+{
+  "text": "according to smith (2008), there is a need for substantial and consistent support and encouragement for women to participate in studies.",
+  "causal": true,
+  "relations": [
+    {
+      "cause": "substantial and consistent support",
+      "effect": "women to participate in studies",
+      "polarity": "Neutral"
+    },
+    {
+      "cause": "encouragement",
+      "effect": "women to participate in studies",
+      "polarity": "Neutral"
+    }
+  ]
 }
-}
+
 ```
 
 ```
 Input: thus, experiencing a task that leads to decrements in feelings of relatedness may affect people's ability to experience intrinsic motivation by also influencing people's mood.;;
 Output:
-"sentence": "thus, experiencing a task that leads to decrements in feelings of relatedness may affect people's ability to experience intrinsic motivation by also influencing people's mood.;;"
-"causal": yes,
-"causes": {
-"experiencing a task that leads to decrements in feelings of relatedness": {
-"influencing people's mood": "Neutral"
-},
-"influencing people's mood": {
-"affect people's ability to experience intrinsic motivation": "Neutral"
-}
+{
+  "text": "thus, experiencing a task that leads to decrements in feelings of relatedness may affect people's ability to experience intrinsic motivation by also influencing people's mood.;;",
+  "causal": true,
+  "relations": [
+    {
+      "cause": "experiencing a task that leads to decrements in feelings of relatedness",
+      "effect": "influencing people's mood",
+      "polarity": "Neutral"
+    },
+    {
+      "cause": "influencing people's mood",
+      "effect": "affect people's ability to experience intrinsic motivation",
+      "polarity": "Neutral"
+    }
+  ]
 }
 ```
 
 ```
 Input: The ostracism alarm comes in the form of feeling social pain, resulting in negative affect and threats to basic needs.
 Output:
-"sentence": "The ostracism alarm comes in the form of feeling social pain, resulting in negative affect and threats to basic needs."
-"causal": yes,
-"causes": {
-"feeling social pain": {
-"negative affect": "Neutral",
-"threats to basic needs": "Neutral"
+{
+  "text": "The ostracism alarm comes in the form of feeling social pain, resulting in negative affect and threats to basic needs.",
+  "causal": true,
+  "relations": [
+    {
+      "cause": "feeling social pain",
+      "effect": "negative affect",
+      "polarity": "Neutral"
+    },
+    {
+      "cause": "feeling social pain",
+      "effect": "threats to basic needs",
+      "polarity": "Neutral"
+    }
+  ]
 }
-}
+
 ```
 
 ```
 Input: unexpected rejection leads to more aggressive responses.
 Output:
-"sentence": "unexpected rejection leads to more aggressive responses."
-"causal": yes,
-"causes": {
-"unexpected rejection": {
-"more aggressive responses": "Positive"
+{
+  "text": "unexpected rejection leads to more aggressive responses.",
+  "causal": true,
+  "relations": [
+    {
+      "cause": "unexpected rejection",
+      "effect": "more aggressive responses",
+      "polarity": "Positive"
+    }
+  ]
 }
-}
+
 ```
 
 ```
 Input: based on my findings with the tracing task, it appears that ostracism affects the ability to persist at a difficult task, but not the ability to initiate the task.
 Output:
-"sentence": "based on my findings with the tracing task, it appears that ostracism affects the ability to persist at a difficult task, but not the ability to initiate the task."
-"causal": yes,
-"causes": {
-"ostracism": {
-"ability to persist at a difficult task": "Neutral",
-"ability to initiate the task": "Zero"
+{
+  "text": "based on my findings with the tracing task, it appears that ostracism affects the ability to persist at a difficult task, but not the ability to initiate the task.",
+  "causal": true,
+  "relations": [
+    {
+      "cause": "ostracism",
+      "effect": "ability to persist at a difficult task",
+      "polarity": "Neutral"
+    },
+    {
+      "cause": "ostracism",
+      "effect": "ability to initiate the task",
+      "polarity": "Zero"
+    }
+  ]
 }
-}
+
 ```
 
 ```
 Input: "since altruism is a form of unconditional kindness, it cannot explain the phenomenon of conditional cooperation, ie, the fact that many people are willing to increase their voluntary cooperation in response to the cooperation of the other players."
-"sentence": "since altruism is a form of unconditional kindness, it cannot explain the phenomenon of conditional cooperation, ie, the fact that many people are willing to increase their voluntary cooperation in response to the cooperation of the other players."
-"causal": yes,
-"causes": {
-"altruism": {
-"conditional cooperation": "Zero"
-},
-"cooperation of the other players": {
-"voluntary cooperation": "Positive"
-}
+Output:
+{
+  "text": "since altruism is a form of unconditional kindness, it cannot explain the phenomenon of conditional cooperation, ie, the fact that many people are willing to increase their voluntary cooperation in response to the cooperation of the other players.",
+  "causal": true,
+  "relations": [
+    {
+      "cause": "altruism",
+      "effect": "conditional cooperation",
+      "polarity": "Zero"
+    },
+    {
+      "cause": "cooperation of the other players",
+      "effect": "voluntary cooperation",
+      "polarity": "Positive"
+    }
+  ]
 }
 ```
 
 ```
 Input: the present research tests the hypothesis that, because of this unwillingness to regulate the self, excluded (relative to included or control) participants are more likely to exhibit the confirmation bias (fischer, Greitemeyer, & frey, 2008).
 Output:
-"sentence": "the present research tests the hypothesis that, because of this unwillingness to regulate the self, excluded (relative to included or control) participants are more likely to exhibit the confirmation bias (fischer, Greitemeyer, & frey, 2008)."
-"causal": yes,
-"causes": {
-"this unwillingness to regulate the self": {
-"excluded (relative to included or control) participants are more likely to exhibit the confirmation bias": "Positive"
-}
+{
+  "text": "the present research tests the hypothesis that, because of this unwillingness to regulate the self, excluded (relative to included or control) participants are more likely to exhibit the confirmation bias (fischer, Greitemeyer, & frey, 2008).",
+  "causal": true,
+  "relations": [
+    {
+      "cause": "this unwillingness to regulate the self",
+      "effect": "excluded (relative to included or control) participants are more likely to exhibit the confirmation bias",
+      "polarity": "Positive"
+    }
+  ]
 }
 ```
 
 ```
 Input: Furthermore, it is believed that the pursuit of selfesteem lies in an individuals need to manage their anxieties and fears (Crocker & Park, 2004; Greenberg 6 et al., 1992).
 Output:
-"sentence": "Furthermore, it is believed that the pursuit of selfesteem lies in an individuals need to manage their anxieties and fears (Crocker & Park, 2004; Greenberg 6 et al., 1992)."
-"causal": no,
-"causes": {}
+{
+  "text": "Furthermore, it is believed that the pursuit of selfesteem lies in an individuals need to manage their anxieties and fears (Crocker & Park, 2004; Greenberg 6 et al., 1992).",
+  "causal": false,
+  "relations": []
+}
 ```
 
 ```
 Input: the drops in performance we did observe among ostracized participants could be stronger with less interesting tasks; a more interesting task might serve as a more appealing means to recover from the ostracism experience than a boring task would.
 Output:
-"sentence": "the drops in performance we did observe among ostracized participants could be stronger with less interesting tasks; a more interesting task might serve as a more appealing means to recover from the ostracism experience than a boring task would."
-"causal": yes,
-"causes": {
-"less interesting tasks": {
-"stronger drops in performance we did observe among ostracized participants": "Positive"
-},
-"a more interesting task": {
-"serve as a more appealing means to recover from the ostracism experience": "Positive"
-}
+{
+  "text": "the drops in performance we did observe among ostracized participants could be stronger with less interesting tasks; a more interesting task might serve as a more appealing means to recover from the ostracism experience than a boring task would.",
+  "causal": true,
+  "relations": [
+    {
+      "cause": "less interesting tasks",
+      "effect": "stronger drops in performance we did observe among ostracized participants",
+      "polarity": "Positive"
+    },
+    {
+      "cause": "a more interesting task",
+      "effect": "serve as a more appealing means to recover from the ostracism experience",
+      "polarity": "Positive"
+    }
+  ]
 }
 ```
 
 ```
 Input: because each instance of qualitative research is perceived as a unique process requiring the researcher to craft his or her own method, flexibility, versatility, and creativity have been emphasised, methodological ambiguity tolerated as an inescapable, even desirable, component of the process.
 Output:
-"sentence": "because each instance of qualitative research is perceived as a unique process requiring the researcher to craft his or her own method, flexibility, versatility, and creativity have been emphasised, methodological ambiguity tolerated as an inescapable, even desirable, component of the process."
-"causal": yes,
-"causes": {
-"each instance of qualitative research is perceived as a unique process requiring the researcher to craft his or her own method": {
-"flexibility, versatility, and creativity have been emphasised": "Neutral",
-"methodological ambiguity tolerated as an inescapable, even desirable, component of the process": "Neutral"
-}
+{
+  "text": "because each instance of qualitative research is perceived as a unique process requiring the researcher to craft his or her own method, flexibility, versatility, and creativity have been emphasised, methodological ambiguity tolerated as an inescapable, even desirable, component of the process.",
+  "causal": true,
+  "relations": [
+    {
+      "cause": "each instance of qualitative research is perceived as a unique process requiring the researcher to craft his or her own method",
+      "effect": "flexibility, versatility, and creativity have been emphasised",
+      "polarity": "Neutral"
+    },
+    {
+      "cause": "each instance of qualitative research is perceived as a unique process requiring the researcher to craft his or her own method",
+      "effect": "methodological ambiguity tolerated as an inescapable, even desirable, component of the process",
+      "polarity": "Neutral"
+    }
+  ]
 }
 ```
 
 ```
 Input: these data fully support our main hypothesis, and show not only that self affirmation can facilitate non-defensive processing among unrealistic optimists but that its absence in the face of threat can foster such defensive processing.
 Output:
-"sentence": "these data fully support our main hypothesis, and show not only that self affirmation can facilitate non-defensive processing among unrealistic optimists but that its absence in the face of threat can foster such defensive processing."
-"causal": yes,
-"causes": {
-"self affirmation": {
-"facilitate non-defensive processing among unrealistic optimists": "Positive"
-},
-"its absence in the face of threat": {
-"foster such defensive processing": "Positive"
+{
+  "text": "these data fully support our main hypothesis, and show not only that self affirmation can facilitate non-defensive processing among unrealistic optimists but that its absence in the face of threat can foster such defensive processing.",
+  "causal": true,
+  "relations": [
+    {
+      "cause": "self affirmation",
+      "effect": "facilitate non-defensive processing among unrealistic optimists",
+      "polarity": "Positive"
+    },
+    {
+      "cause": "its absence in the face of threat",
+      "effect": "foster such defensive processing",
+      "polarity": "Positive"
+    }
+  ]
 }
-}
+
 ```
 
 ```
 Input: the cluster analysis results suggest that the built environment is the outcome of mode of governance producing places and contradictions.
 Output:
-"sentence": "the cluster analysis results suggest that the built environment is the outcome of mode of governance producing places and contradictions."
-"causal": yes,
-"causes": {
-"mode of governance": {
-"the built environment": "Neutral"
-},
-"the built environment": {
-"producing places and contradictions": "Neutral"
-}
+{
+  "text": "the cluster analysis results suggest that the built environment is the outcome of mode of governance producing places and contradictions.",
+  "causal": true,
+  "relations": [
+    {
+      "cause": "mode of governance",
+      "effect": "the built environment",
+      "polarity": "Neutral"
+    },
+    {
+      "cause": "the built environment",
+      "effect": "producing places and contradictions",
+      "polarity": "Neutral"
+    }
+  ]
 }
 ```
 
 ```
 Input: ethnographers might become an advocate when they become ""aware of an issue"" through their research or when they become ""more deeply committed to the issue"" (p.151) through their research.
 Output:
-"sentence": "ethnographers might become an advocate when they become ""aware of an issue"" through their research or when they become ""more deeply committed to the issue"" (p.151) through their research."
-"causal": yes,
-"causes": {
-"become ""aware of an issue"" through their research": {
-"ethnographers might become an advocate": "Neutral"
-},
-"become ""more deeply committed to the issue"" through their research": {
-"ethnographers might become an advocate": "Neutral"
+{
+  "text": "ethnographers might become an advocate when they become ""aware of an issue"" through their research or when they become ""more deeply committed to the issue"" (p.151) through their research.",
+  "causal": true,
+  "relations": [
+    {
+      "cause": "become ""aware of an issue"" through their research",
+      "effect": "ethnographers might become an advocate",
+      "polarity": "Neutral"
+    },
+    {
+      "cause": "become ""more deeply committed to the issue"" through their research",
+      "effect": "ethnographers might become an advocate",
+      "polarity": "Neutral"
+    }
+  ]
 }
-}
+
 ```
 
 ```
 Input: Accumulated total earnings are negatively correlated with the likelihood of repayment.
 Output:
-"sentence": "Accumulated total earnings are negatively correlated with the likelihood of repayment."
-"causal": no,
-"causes": {}
+{
+  "text": "Accumulated total earnings are negatively correlated with the likelihood of repayment.",
+  "causal": false,
+  "relations": []
+}
 ```
 
 ```
 Input: producing valid and relevant information therefore requires organisation of the in‐flow of information as well as a degree of critical distance kept with the field intensity.
 Output:
-"sentence": "producing valid and relevant information therefore requires organisation of the in‐flow of information as well as a degree of critical distance kept with the field intensity."
-"causal": yes,
-"causes": {
-"organisation of the in‐flow of information": {
-"producing valid and relevant information": "Neutral"
-},
-"a degree of critical distance kept with the field intensity": {
-"producing valid and relevant information": "Neutral"
+{
+  "text": "producing valid and relevant information therefore requires organisation of the in‐flow of information as well as a degree of critical distance kept with the field intensity.",
+  "causal": true,
+  "relations": [
+    {
+      "cause": "organisation of the in‐flow of information",
+      "effect": "producing valid and relevant information",
+      "polarity": "Neutral"
+    },
+    {
+      "cause": "a degree of critical distance kept with the field intensity",
+      "effect": "producing valid and relevant information",
+      "polarity": "Neutral"
+    }
+  ]
 }
-}
+
 ```
 
-IMPORTANT: You MUST use the exact format specified above
-You MUST generate output in the required format shown in the examples. Do not add explanations, reasoning, or any content outside of the required format.
+IMPORTANT: You MUST use the exact JSON format specified above (including the "text" key). You MUST generate output in the required format shown in the examples. Do not add explanations, reasoning, or any content outside of the required JSON format.
 
 Now, analyze the following sentence:
 [Input Sentence Here]
