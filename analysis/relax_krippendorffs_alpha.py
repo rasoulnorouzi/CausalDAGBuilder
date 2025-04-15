@@ -31,7 +31,7 @@ class KrippendorffSpanMatcher:
           - 'labels': labels for each token (or "NONE" if no relevant entity is found).
         """
         processed = []
-        with open(file_path, "r") as file:
+        with open(file_path, "r", encoding='utf-8') as file:
             for line in file:
                 record = json.loads(line)
                 sentence = record.get("text", "")
