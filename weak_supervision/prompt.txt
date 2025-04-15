@@ -64,11 +64,11 @@ DO NOT deviate from this format. Do not add explanations, reasoning, comments, o
 - **Non-Causal Sentence**: Describes association, correlation, co-occurrence, comparison, or sequences without a direct causal link or is a question sentence. Output "causal": no.
 - **Cause**: The event or condition that initiates the effect. Extract the exact phrase from the sentence.
 - **Effect**: The outcome resulting from the cause. Extract the exact phrase from the sentence.
-- **Polarity**: The nature of the causal link:
-    - **Positive**: The cause increases or intensifies the effect (e.g., "leads to more aggressive responses").
-    - **Negative**: The cause decreases or diminishes the effect (e.g., "reduces errors").
-    - **Neutral**: A causal link exists, but direction (increase/decrease) isn't specified or clearly implied (e.g., "affects the ability").
-    - **Zero**: The sentence explicitly states a lack of causal connection between a specific cause and effect, often using negation (e.g., "did not moderate reactions," "but not the ability to initiate").
+- **Polarity: The nature of the causal link**:
+    - Positive: The cause increases the magnitude, intensity, frequency, or likelihood of the effect (e.g., "leads to more aggressive responses," "more studying leads to higher grades"). It's not just that the effect happens, but that it happens more.
+    - Negative: The cause decreases the magnitude, intensity, frequency, or likelihood of the effect (e.g., "reduces errors," "less sleep leads to lower concentration").
+    - Neutral: A causal link exists where the cause triggers, enables, requires, affects, or results in the effect occurring, but the direction (increase/decrease) isn't specified or clearly implied relative to a baseline. Conditional requirements ("if A then B is required") often fall here unless B is explicitly stated to increase/decrease. (e.g., "affects the ability," "flipping the switch turns on the light," "if disclosure threatens safety, refusal is required").
+    - Zero: The sentence explicitly states a lack of causal connection between a specific cause and effect, often using negation (e.g., "did not cause reactions," "but not the ability to initiate," "can not to increase, " "may not the reason of").
 
 # Causal Requirement Rules
 
