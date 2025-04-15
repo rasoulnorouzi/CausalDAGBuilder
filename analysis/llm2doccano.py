@@ -29,6 +29,27 @@ def locate_best_matching_span(text, phrase, threshold=0.8):
 
     return best_match
 
+def safe_json_loads(s):
+    """
+    Attempts to fix common JSON escape issues before parsing.
+    Returns None if parsing still fails.
+    """
+    try:
+        return json.loads(s)
+    except json.JSONDecodeError as e:
+        # Try to escape backslashes that are not part of valid escape sequences
+        import re
+        # Replace single backslashes not followed by ["\\/bfnrtu] with double backslash
+        fixed = re.sub(r'\\(?!["\\/bfnrtu])', r'\\\\', s)
+        try:
+            return json.loads(fixed)
+        except Exception as e2:
+            print(f"Failed to fix JSON: {e2}")
+            return None
+    except Exception as e:
+        print(f"Other JSON error: {e}")
+        return None
+
 def convert_llm_output_to_doccano_format(ollama_data):
     """
     Converts LLM-generated causal annotations to Doccano JSON format.
@@ -51,15 +72,19 @@ def convert_llm_output_to_doccano_format(ollama_data):
     global_relation_id = 500
 
     for i, item in enumerate(ollama_data):
+        sentence_data = safe_json_loads(item["output"])
+        if sentence_data is None:
+            print(f"Skipping sample {i+1}: still invalid JSON in 'output' field.")
+            continue
+
         base = {
             "id": i+1,
-            "text": json.loads(item["output"])["text"],
+            "text": sentence_data["text"],
             "entities": [],
             "relations": [],
             "Comments": []
         }
 
-        sentence_data = json.loads(item["output"])
         text = sentence_data["text"]
         entity_map = {}
 
