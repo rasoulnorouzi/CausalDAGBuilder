@@ -8,7 +8,7 @@ You MUST strictly adhere to this exact JSON output format. Output ONLY the JSON 
 
 For causal sentences:
 
-```
+
 {
   "text": "[exact input sentence]",
   "causal": true,
@@ -27,18 +27,18 @@ For causal sentences:
   ]
 }
 
-```
+
 
 For non-causal sentences:
 
-```
+
 {
   "text": "[exact input sentence]",
   "causal": false,
   "relations": []
 }
 
-```
+
 
 - The value for "text" MUST be the exact input sentence provided for analysis.
 
@@ -90,7 +90,7 @@ DO NOT deviate from this format. Do not add explanations, reasoning, comments, o
     - For each pair, extract the exact Cause phrase and the exact Effect phrase from the sentence. Do not modify, shorten, or extend the phrases. This is true for cause spans as well as effect spans.
     - Determine the Polarity (Positive, Negative, Neutral, Zero) for each pair based on the definitions above.
     - Populate the "relations" list with a dictionary ({"cause": "...", "effect": "...", "polarity": "..."}) for each identified pair.
-    - Construct the final JSON object including the "text" key (containing the original input sentence), the "causal" key, and the "relations" list.
+    - Construct the final JSON object including the "text" key (containing the original input sentence), and the "relations" list.
     - Format the entire output as a single JSON object exactly as shown in the required output format.
 
 4. If "causal": no:
@@ -100,7 +100,7 @@ DO NOT deviate from this format. Do not add explanations, reasoning, comments, o
 
 # Examples
 
-```
+
 Input: according to smith (2008), there is a need for substantial and consistent support and encouragement for women to participate in studies.
 Output:
 {
@@ -120,9 +120,8 @@ Output:
   ]
 }
 
-```
 
-```
+
 Input: thus, experiencing a task that leads to decrements in feelings of relatedness may affect people's ability to experience intrinsic motivation by also influencing people's mood.;;
 Output:
 {
@@ -141,9 +140,9 @@ Output:
     }
   ]
 }
-```
 
-```
+
+
 Input: The ostracism alarm comes in the form of feeling social pain, resulting in negative affect and threats to basic needs.
 Output:
 {
@@ -163,9 +162,9 @@ Output:
   ]
 }
 
-```
 
-```
+
+
 Input: unexpected rejection leads to more aggressive responses.
 Output:
 {
@@ -174,15 +173,15 @@ Output:
   "relations": [
     {
       "cause": "unexpected rejection",
-      "effect": "more aggressive responses",
+      "effect": "aggressive responses",
       "polarity": "Positive"
     }
   ]
 }
 
-```
 
-```
+
+
 Input: based on my findings with the tracing task, it appears that ostracism affects the ability to persist at a difficult task, but not the ability to initiate the task.
 Output:
 {
@@ -202,9 +201,9 @@ Output:
   ]
 }
 
-```
 
-```
+
+
 Input: "since altruism is a form of unconditional kindness, it cannot explain the phenomenon of conditional cooperation, ie, the fact that many people are willing to increase their voluntary cooperation in response to the cooperation of the other players."
 Output:
 {
@@ -223,9 +222,9 @@ Output:
     }
   ]
 }
-```
 
-```
+
+
 Input: the present research tests the hypothesis that, because of this unwillingness to regulate the self, excluded (relative to included or control) participants are more likely to exhibit the confirmation bias (fischer, Greitemeyer, & frey, 2008).
 Output:
 {
@@ -233,15 +232,15 @@ Output:
   "causal": true,
   "relations": [
     {
-      "cause": "this unwillingness to regulate the self",
+      "cause": "unwillingness to regulate the self",
       "effect": "excluded (relative to included or control) participants are more likely to exhibit the confirmation bias",
       "polarity": "Positive"
     }
   ]
 }
-```
 
-```
+
+
 Input: Furthermore, it is believed that the pursuit of selfesteem lies in an individuals need to manage their anxieties and fears (Crocker & Park, 2004; Greenberg 6 et al., 1992).
 Output:
 {
@@ -249,9 +248,9 @@ Output:
   "causal": false,
   "relations": []
 }
-```
 
-```
+
+
 Input: the drops in performance we did observe among ostracized participants could be stronger with less interesting tasks; a more interesting task might serve as a more appealing means to recover from the ostracism experience than a boring task would.
 Output:
 {
@@ -260,7 +259,7 @@ Output:
   "relations": [
     {
       "cause": "less interesting tasks",
-      "effect": "stronger drops in performance we did observe among ostracized participants",
+      "effect": "drops in performance",
       "polarity": "Positive"
     },
     {
@@ -270,9 +269,9 @@ Output:
     }
   ]
 }
-```
 
-```
+
+
 Input: because each instance of qualitative research is perceived as a unique process requiring the researcher to craft his or her own method, flexibility, versatility, and creativity have been emphasised, methodological ambiguity tolerated as an inescapable, even desirable, component of the process.
 Output:
 {
@@ -291,9 +290,9 @@ Output:
     }
   ]
 }
-```
 
-```
+
+
 Input: these data fully support our main hypothesis, and show not only that self affirmation can facilitate non-defensive processing among unrealistic optimists but that its absence in the face of threat can foster such defensive processing.
 Output:
 {
@@ -313,9 +312,9 @@ Output:
   ]
 }
 
-```
 
-```
+
+
 Input: the cluster analysis results suggest that the built environment is the outcome of mode of governance producing places and contradictions.
 Output:
 {
@@ -334,9 +333,9 @@ Output:
     }
   ]
 }
-```
 
-```
+
+
 Input: ethnographers might become an advocate when they become ""aware of an issue"" through their research or when they become ""more deeply committed to the issue"" (p.151) through their research.
 Output:
 {
@@ -356,9 +355,9 @@ Output:
   ]
 }
 
-```
 
-```
+
+
 Input: Accumulated total earnings are negatively correlated with the likelihood of repayment.
 Output:
 {
@@ -366,10 +365,11 @@ Output:
   "causal": false,
   "relations": []
 }
-```
 
-```
+
+
 Input: producing valid and relevant information therefore requires organisation of the in‐flow of information as well as a degree of critical distance kept with the field intensity.
+
 Output:
 {
   "text": "producing valid and relevant information therefore requires organisation of the in‐flow of information as well as a degree of critical distance kept with the field intensity.",
@@ -388,9 +388,9 @@ Output:
   ]
 }
 
-```
+
 
 IMPORTANT: You MUST use the exact JSON format specified above (including the "text" key). You MUST generate output in the required format shown in the examples. Do not add explanations, reasoning, or any content outside of the required JSON format.
 
 Now, analyze the following sentence:
-[Input Sentence Here]
+{{SENTENCE}}
