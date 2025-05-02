@@ -11,7 +11,7 @@ from huggingface_hub import login
 from vllm import LLM, SamplingParams
 
 # >>>>> 1. inline token (replace the string) <<<<<
-HF_TOKEN = "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"
+
 login(token=HF_TOKEN)
 
 # 2. config that matches your note
