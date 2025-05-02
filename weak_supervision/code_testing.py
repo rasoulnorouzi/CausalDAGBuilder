@@ -10,9 +10,6 @@ import json
 from huggingface_hub import login
 from vllm import LLM, SamplingParams
 
-# >>>>> 1. inline token (replace the string) <<<<<
-
-# login(token=HF_TOKEN)
 
 # 2. config that matches your note
 MODEL_NAME = "meta-llama/Meta-Llama-3-8B-Instruct"
