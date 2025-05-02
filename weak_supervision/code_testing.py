@@ -49,3 +49,4 @@ out = llm.chat(
 # The vllm library returns output in a different structure
 # Use the appropriate attribute to get the model's response
 print(out[0].outputs[0].text.strip())
+################
