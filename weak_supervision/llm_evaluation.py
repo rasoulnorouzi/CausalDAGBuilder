@@ -21,4 +21,3 @@ performance_B = causal_eval.evaluate(
 )
 causal_eval.display_results(performance_B, "B")
 
-# %%
