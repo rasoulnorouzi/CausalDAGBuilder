@@ -39,12 +39,12 @@ PROMPT_FILE: str = "/home/rnorouzini/CausalDAGBuilder/weak_supervision/prompt.tx
 SENTENCE_COLUMN: int = 0                                                                # CSV column index
 SAMPLE_SIZE: Optional[int] = None   # e.g. 100 -> sample 100 rows, None -> all
 USE_CHAT_TEMPLATE: bool = True       # toggle chat wrapping on/off
-BATCH_SIZE: int = 200                # prompts per forward pass
+BATCH_SIZE: int = 1000                # prompts per forward pass
 MAX_TOKENS: int = 512                # max new tokens to generate
 GPU_MEMORY_UTILISATION: float = 0.90 # fraction of GPU RAM vLLM may allocate
-RANDOM_SEED: int = 42                # reproducible sampling
+RANDOM_SEED: int = 8642                # reproducible sampling
 HF_TOKEN       = "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"
-SAVE_INTERVAL: int = 10000            # Save results every N samples processed
+SAVE_INTERVAL: int = 5000            # Save results every N samples processed
 # ────────────────────────────────────────────────────────────────────────────────
 # %%
 
@@ -102,6 +102,7 @@ def main() -> None:
 
     prompts = build_prompts(prompt_template, sentences, USE_CHAT_TEMPLATE, tokenizer)
 
+
     sampling_params = SamplingParams(
         temperature=0.0,
         top_p=1.0,
@@ -126,38 +127,35 @@ def main() -> None:
     print(f"Save interval: Every {SAVE_INTERVAL:,} samples")
 
     print("Running inference …")
-    for start in range(0, len(prompts), BATCH_SIZE):
-        end = min(start + BATCH_SIZE, len(prompts))
+    for start in range(0, num_prompts, BATCH_SIZE):
+        end = min(start + BATCH_SIZE, num_prompts)
         batch_prompts = prompts[start:end]
+        print(f"Processing prompts {start:,} to {end:,} of {num_prompts:,}")
+        # vLLM expects a list of strings (or list of lists for chat).
         outputs = llm.generate(batch_prompts, sampling_params)
 
         # RequestOutput -> best candidate text.
         results.extend([o.outputs[0].text.strip() for o in outputs])
 
-        if (start // BATCH_SIZE) % 10 == 0 or end == len(prompts):
-            print(f"Processed {end:,}/{len(prompts):,} prompts")
-        
         # Save intermediate results at specified intervals
         if end % SAVE_INTERVAL == 0 or end == len(prompts):
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             interim_filename = f"llama3_8b_raw_{end}_{timestamp}.jsonl"
             save_results_to_file(results[:end], interim_filename)
+            print(f"Saved interim results to {interim_filename}")
 
-    # ── Display results ─────────────────────────────────────────────────────
-    print("\n —— Annotation complete — displaying JSON responses ——\n")
-    for json_str in results:
-        print(json_str)
-        print()  # blank line between entries
+    # ── Display 5 samples of results ─────────────────────────────────────────────────────
+    print("Displaying results …")
+    for i in range(5):
+        print(f"Response {i+1}: {results[i]}")
+        print("-" * 80)
+    # ───────────────────────────────────────────────────────────────────────────────
     
     # Save final results with the original filename
     save_results_to_file(results, "llama3_8b_raw.jsonl")
     
-    print("Exiting vLLM …") 
-    llm.shutdown()
     print("Done.")   
 
 if __name__ == "__main__":
     main()
-
-
 # %%
