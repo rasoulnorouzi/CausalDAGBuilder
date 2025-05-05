@@ -37,14 +37,14 @@ MODEL_NAME: str = "meta-llama/Meta-Llama-3-8B-Instruct"  # default Hugging Face 
 DATA_FILE: str = "/home/rnorouzini/CausalDAGBuilder/weak_supervision/dataset/100k_causal_sentences.csv"            # path to CSV dataset
 PROMPT_FILE: str = "/home/rnorouzini/CausalDAGBuilder/weak_supervision/prompt.txt"                         # path to prompt template
 SENTENCE_COLUMN: int = 0                                                                # CSV column index
-SAMPLE_SIZE: Optional[int] = 1000   # e.g. 100 -> sample 100 rows, None -> all
+SAMPLE_SIZE: Optional[int] = None   # e.g. 100 -> sample 100 rows, None -> all
 USE_CHAT_TEMPLATE: bool = True       # toggle chat wrapping on/off
-BATCH_SIZE: int = 100                # prompts per forward pass
+BATCH_SIZE: int = 200                # prompts per forward pass
 MAX_TOKENS: int = 512                # max new tokens to generate
 GPU_MEMORY_UTILISATION: float = 0.90 # fraction of GPU RAM vLLM may allocate
 RANDOM_SEED: int = 42                # reproducible sampling
 HF_TOKEN       = "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"
-SAVE_INTERVAL: int = 200            # Save results every N samples processed
+SAVE_INTERVAL: int = 10000            # Save results every N samples processed
 # ────────────────────────────────────────────────────────────────────────────────
 # %%
 
