@@ -4,6 +4,8 @@ import pandas as pd
 from vllm import LLM, SamplingParams
 from transformers import AutoTokenizer
 import json
+import datetime
+import os
 # %%
 
 """Simple, self-contained pipeline to annotate sentences with a large-language model
@@ -42,6 +44,7 @@ MAX_TOKENS: int = 512                # max new tokens to generate
 GPU_MEMORY_UTILISATION: float = 0.90 # fraction of GPU RAM vLLM may allocate
 RANDOM_SEED: int = 42                # reproducible sampling
 HF_TOKEN       = "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"
+SAVE_INTERVAL: int = 200            # Save results every N samples processed
 # ────────────────────────────────────────────────────────────────────────────────
 # %%
 
@@ -75,6 +78,13 @@ def build_prompts(template: str, sentences: List[str], use_chat: bool,
     # Fallback: plain string replacement (user supplies full template).
     return [template.replace("{{SENTENCE}}", s) for s in sentences]
 #%%
+
+def save_results_to_file(results: List[str], filename: str) -> None:
+    """Save results to a JSONL file."""
+    with open(filename, "w", encoding="utf-8") as f:
+        for item in results:
+            f.write(json.dumps(item, ensure_ascii=False) + "\n")
+    print(f"Results written to {filename}")
 
 def main() -> None:
     print("Loading prompt template …")
@@ -113,7 +123,7 @@ def main() -> None:
     num_prompts = len(prompts)
     print(f"Total prompts to process: {num_prompts:,}")
     print(f"Batch size: {BATCH_SIZE:,}")
-
+    print(f"Save interval: Every {SAVE_INTERVAL:,} samples")
 
     print("Running inference …")
     for start in range(0, len(prompts), BATCH_SIZE):
@@ -126,18 +136,22 @@ def main() -> None:
 
         if (start // BATCH_SIZE) % 10 == 0 or end == len(prompts):
             print(f"Processed {end:,}/{len(prompts):,} prompts")
+        
+        # Save intermediate results at specified intervals
+        if end % SAVE_INTERVAL == 0 or end == len(prompts):
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            interim_filename = f"llama3_8b_raw_{end}_{timestamp}.jsonl"
+            save_results_to_file(results[:end], interim_filename)
 
     # ── Display results ─────────────────────────────────────────────────────
-    print("\n\n—— Annotation complete — displaying JSON responses ——\n")
+    print("\n —— Annotation complete — displaying JSON responses ——\n")
     for json_str in results:
         print(json_str)
         print()  # blank line between entries
     
-    with open("llama3_8b_raw.jsonl", "w", encoding="utf-8") as f:
-        for item in results:
-            f.write(json.dumps(item, ensure_ascii=False) + "\n")
-    print("Results written to llama3_8b_raw.jsonl")
-    print("Done.")
+    # Save final results with the original filename
+    save_results_to_file(results, "llama3_8b_raw.jsonl")
+    
     print("Exiting vLLM …") 
     llm.shutdown()
     print("Done.")   
